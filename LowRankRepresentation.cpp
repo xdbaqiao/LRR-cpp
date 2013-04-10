@@ -51,6 +51,7 @@ vector<MatrixXd> LowRankRepresentation::result(MatrixXd& X, MatrixXd& A, double 
         U = svd.matrixU();
         V = svd.matrixV();
         svp = (sigma.array() > 1/Mu).count();
+        
         if(svp >= 1)
         {
             sigma_tmp = sigma.segment(0,svp)-(1/Mu) * VectorXd::Ones(svp) ;

@@ -5,8 +5,11 @@ function [] = demo()
 ls = [0.0001 0.0005 0.001 0.002 0.004 0.008 0.01 0.02 0.04 0.08 0.1]; %parameter lambda
 rs = [];
 accs=[];
-for i=1:length(ls)
-    Z = solve_lrr_m(X,X,ls(i));
+%for i=1:length(ls)
+for i=1:1
+     Z = solve_lrr(X,X,ls(i));
+    Z_m = solve_lrr_m(X,X,ls(i));
+    mesh(Z-Z_m)
    L = abs(Z)+abs(Z');
 %    L = Z+abs(Z);    
      disp('Perfoming NCut ...');

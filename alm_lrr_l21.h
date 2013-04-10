@@ -8,7 +8,7 @@
 using namespace Eigen;
 using namespace std;
 
-static const double Tol = 1e-8;
+static const double Tol = 1e-4;
 static const int MaxIter = 1e6;
 static const double Rho = 1.1;
 static const long int MaxMu = 1e10;

@@ -63,6 +63,8 @@ for (n=0;n<DN;n++)
 LowRankRepresentation lrr(x, d, lambda);
 ze = lrr.result(x, d, lambda);
 
+
+
 for (n=0;n<ZN;n++)
     for(m=0;m<ZM;m++)
         Z[m+ZM*n] = ze[0](m,n);
@@ -117,8 +119,8 @@ vector<MatrixXd> LowRankRepresentation::result(MatrixXd& X, MatrixXd& A, double 
 //   SparseMatrix<double> E(d, n);
     int iter = 0;
 
-    FullPivLU<MatrixXd> lu_decomp(Z);
-    cout << "initial, rank=" << lu_decomp.rank() << endl;
+//    FullPivLU<MatrixXd> lu_decomp(Z);
+//    cout << "initial, rank=" << lu_decomp.rank() << endl;
 
     while(iter < MaxIter)
     {
@@ -130,6 +132,7 @@ vector<MatrixXd> LowRankRepresentation::result(MatrixXd& X, MatrixXd& A, double 
         U = svd.matrixU();
         V = svd.matrixV();
         svp = (sigma.array() > 1/Mu).count();
+        
         if(svp >= 1)
         {
             sigma_tmp = sigma.segment(0,svp)-(1/Mu) * VectorXd::Ones(svp) ;
@@ -142,23 +145,27 @@ vector<MatrixXd> LowRankRepresentation::result(MatrixXd& X, MatrixXd& A, double 
         }
         J = U.leftCols(svp) * MatrixXd(sigma.asDiagonal()) * V.leftCols(svp).transpose();
         Z = inv_a * (atx - A.transpose() * E + J + (A.transpose() * Y1 - Y2)/Mu);
-
+     
         xmaz = X - A * Z;
         tmp = xmaz + Y1 / Mu;
         E = solve_l1l2(tmp, lambda/Mu);
 
+        
         leq1 = xmaz - E;
         leq2 = Z - J;
         stopC_tmp1 = leq1.array().abs().maxCoeff();
         stopC_tmp2 = leq2.array().abs().maxCoeff();
         stopC = stopC_tmp1 < stopC_tmp2 ? stopC_tmp2:stopC_tmp1;
 
-        if (iter==1 || (iter % 50)==0 || stopC<Tol)
-        {
-            FullPivLU<MatrixXd> lu_decomp(Z);
+
+        
+//        if (iter==1 || (iter % 50)==0 || stopC<Tol)
+//        {
+//            FullPivLU<MatrixXd> lu_decomp(Z);
             //printf("iter %d, mu=%2.1e, rank=%d, stopALM=%2.3e\n", iter, Mu, lu_decomp.rank(), stopC);
-            printf("iter %d, mu=%2.1e, stopALM=%2.3e\n", iter, Mu, stopC);
-        }
+ //           printf("iter %d, mu=%2.1e, stopALM=%2.3e\n", iter, Mu, stopC);
+//           cout<< endl;
+//        }
         if (stopC<Tol)
         {
             cout << "LRR done." << endl;
