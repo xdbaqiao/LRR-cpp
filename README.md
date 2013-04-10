@@ -2,13 +2,13 @@ C++ version of low rank representation
 ====
 **It's the C++ version of low rank representation.**
           
-Just need install [Eigen library](http://eigen.tuxfamily.org/index.php?title=Main_Page')    
+Just need install [Eigen library](http://eigen.tuxfamily.org/index.php?title=Main_Page)    
 
-Install eigen3
-#yaourt eigen3
-run makefile.sh
-$sh makefile.sh
-run lrr
+Install eigen3          
+#yaourt eigen3        
+run makefile.sh        
+$sh makefile.sh          
+run lrr           
 $./lrr       
 
 
