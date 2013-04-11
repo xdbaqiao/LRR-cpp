@@ -1,4 +1,85 @@
-#include "LowRankRepresentation.h"
+#include "mex.h"
+#include "alm_lrr_l21.h"
+#define Z_OUT plhs[0]
+#define E_OUT plhs[1]
+#define X_IN  prhs[0]
+#define D_IN  prhs[1]
+#define lambda_IN  prhs[2]
+
+ /* Always include this */
+void mexFunction(int nlhs, mxArray *plhs[],                       /* Output variables */
+                          int nrhs, const mxArray *prhs[])             /* Input variables */
+{
+
+if(nrhs < 1 || nrhs > 3)                /* Check the number of arguments */
+     mexErrMsgTxt("Wrong number of input arguments.");
+else if(nlhs > 2)
+     mexErrMsgTxt("Too many output arguments.");
+/* if (nrhs == 2)                     
+     lambda = 0.02;
+else
+     lambda = prhs[2];
+*/
+
+double *X, *D,*Z,*E,lambda;
+int XM, XN,DM,DN, ZM,ZN,m, n;
+
+lambda = mxGetScalar(lambda_IN);                         /* Get lambda */
+
+X = mxGetPr(X_IN);                                                /* Get the pointer to  the data of X */
+XM = mxGetM(X_IN);                                              /* Get the dimensions  of X */
+XN = mxGetN(X_IN);
+
+D = mxGetPr(D_IN);                                               
+DM = mxGetM(D_IN);                                            
+DN = mxGetN(D_IN);
+
+ZM = DN;
+ZN =  XN;
+m=0,n=0;
+//X[m + M*n]
+
+MatrixXd x(XM, XN) ,d(DM,DN),z(ZM,ZN);
+
+vector<MatrixXd> ze;
+
+Z_OUT = mxCreateDoubleMatrix(DN, XN, mxREAL);
+Z = mxGetPr(Z_OUT);                                             /* Get the pointer to  the data of Z */
+E_OUT = mxCreateDoubleMatrix(DN, XN, mxREAL);
+E = mxGetPr(E_OUT);
+
+//cout << "ZM" << ZM << "ZN" << ZN << endl;;
+
+for (n=0;n<XN;n++)
+    for(m=0;m<XM;m++)
+        x(m,n) = X[m+ZM*n];
+
+
+for (n=0;n<DN;n++)
+    for(m=0;m<DM;m++)
+        d(m,n) = D[m+ZM*n];
+
+
+LowRankRepresentation lrr(x, d, lambda);
+ze = lrr.result(x, d, lambda);
+
+
+
+for (n=0;n<ZN;n++)
+    for(m=0;m<ZM;m++)
+        Z[m+ZM*n] = ze[0](m,n);
+
+for (n=0;n<ZN;n++)
+    for(m=0;m<ZM;m++)
+        E[m+ZM*n] = ze[1](m,n);
+
+//Z = ZE[0]; 
+//E = ZE[1];
+        
+        
+//mexPrintf("Hello, world!\n");                                   /* Do something interesting */
+return;
+}
 
 int main(int argc, char*argv[])
 {
@@ -38,8 +119,8 @@ vector<MatrixXd> LowRankRepresentation::result(MatrixXd& X, MatrixXd& A, double 
 //   SparseMatrix<double> E(d, n);
     int iter = 0;
 
-    FullPivLU<MatrixXd> lu_decomp(Z);
-    cout << "initial, rank=" << lu_decomp.rank() << endl;
+//    FullPivLU<MatrixXd> lu_decomp(Z);
+//    cout << "initial, rank=" << lu_decomp.rank() << endl;
 
     while(iter < MaxIter)
     {
@@ -64,23 +145,27 @@ vector<MatrixXd> LowRankRepresentation::result(MatrixXd& X, MatrixXd& A, double 
         }
         J = U.leftCols(svp) * MatrixXd(sigma.asDiagonal()) * V.leftCols(svp).transpose();
         Z = inv_a * (atx - A.transpose() * E + J + (A.transpose() * Y1 - Y2)/Mu);
-
+     
         xmaz = X - A * Z;
         tmp = xmaz + Y1 / Mu;
         E = solve_l1l2(tmp, lambda/Mu);
 
+        
         leq1 = xmaz - E;
         leq2 = Z - J;
         stopC_tmp1 = leq1.array().abs().maxCoeff();
         stopC_tmp2 = leq2.array().abs().maxCoeff();
         stopC = stopC_tmp1 < stopC_tmp2 ? stopC_tmp2:stopC_tmp1;
 
-        if (iter==1 || (iter % 50)==0 || stopC<Tol)
-        {
-            FullPivLU<MatrixXd> lu_decomp(Z);
+
+        
+//        if (iter==1 || (iter % 50)==0 || stopC<Tol)
+//        {
+//            FullPivLU<MatrixXd> lu_decomp(Z);
             //printf("iter %d, mu=%2.1e, rank=%d, stopALM=%2.3e\n", iter, Mu, lu_decomp.rank(), stopC);
-            printf("iter %d, mu=%2.1e, stopALM=%2.3e\n", iter, Mu, stopC);
-        }
+ //           printf("iter %d, mu=%2.1e, stopALM=%2.3e\n", iter, Mu, stopC);
+//           cout<< endl;
+//        }
         if (stopC<Tol)
         {
             cout << "LRR done." << endl;
