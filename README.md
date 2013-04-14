@@ -13,19 +13,19 @@ Just need install [Eigen library](http://eigen.tuxfamily.org/index.php?title=Mai
 **run lrr**           
 `$./lrr`       
 
-**find eigen3**
+**find eigen3**     
 `$pkg-config --cflags --libs eigen3`
 
-**mex in matlab**
+**mex in matlab**        
 `>>mex -I/usr/include/eigen3 alm_lrr_l21.cpp`
 
-**cc outoff matlab**
+**cc outoff matlab**          
 `$g++ -fPIC -DMATLAB_MEX_FILE ``pkg-config --cflags --libs eigen3`` -I$(MATLABHOME)/extern/include -c alm_lrr_l21.cpp`
 
-**test in matlab**
+**test in matlab**          
 `>>test`
 
-**demo in matlab**
+**demo in matlab**            
 `>>demo`
 
 Result      
